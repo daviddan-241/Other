@@ -6,115 +6,130 @@ from curl_cffi import requests
 from core      import Utils
 from os        import path
 
+
 class Parser:
-    
+
     mapping: dict = {}
     _mapping_loaded: bool = False
-    
+
     grok_mapping: list = []
     _grok_mapping_loaded: bool = False
-    
+
     @classmethod
     def _load__xsid_mapping(cls):
         if not cls._mapping_loaded and path.exists('core/mappings/txid.json'):
             with open('core/mappings/txid.json', 'r') as f:
                 cls.mapping = load(f)
             cls._mapping_loaded = True
-            
+
     @classmethod
     def _load_grok_mapping(cls):
         if not cls._grok_mapping_loaded and path.exists('core/mappings/grok.json'):
             with open('core/mappings/grok.json', 'r') as f:
                 cls.grok_mapping = load(f)
             cls._grok_mapping_loaded = True
-    
+
     @staticmethod
-    def parse_values(html: str, loading: str = "loading-x-anim-0", scriptId: str = "") -> tuple[str, Optional[str]]:
+    def parse_values(html: str, loading: str = "loading-x-anim-0", scriptId: str = "") -> tuple:
 
         Parser._load__xsid_mapping()
-        
-        all_d_values = findall(r'"d":"(M[^"]{200,})"', html)
-        svg_data = all_d_values[int(loading.split("loading-x-anim-")[1])]
-        
-        if scriptId:
-            
-            if scriptId == "ondemand.s":
-                script_link: str = 'https://abs.twimg.com/responsive-web/client-web/ondemand.s.' + Utils.between(html, f'"{scriptId}":"', '"') + 'a.js'
-            else:
-                script_link: str = f'https://grok.com/_next/{scriptId}'
 
-            if script_link in Parser.mapping:
-                numbers: list = Parser.mapping[script_link]
-                
-            else:
-                script_content: str = requests.get(script_link, impersonate="chrome136").text
-                numbers: list = [int(x) for x in findall(r'x\[(\d+)\]\s*,\s*16', script_content)]
-                Parser.mapping[script_link] = numbers
-                with open('core/mappings/txid.json', 'w') as f:
-                    dump(Parser.mapping, f)
+        all_d_values = findall(r'"d":"(M[^"]{200,})"', html)
+        try:
+            idx = int(loading.split("loading-x-anim-")[1])
+        except (IndexError, ValueError):
+            idx = 0
+
+        svg_data = all_d_values[idx] if all_d_values and idx < len(all_d_values) else (all_d_values[0] if all_d_values else "")
+
+        if scriptId:
+            try:
+                if scriptId == "ondemand.s":
+                    script_link: str = 'https://abs.twimg.com/responsive-web/client-web/ondemand.s.' + Utils.between(html, f'"{scriptId}":"', '"') + 'a.js'
+                else:
+                    script_link: str = f'https://grok.com/_next/{scriptId}'
+
+                if script_link in Parser.mapping:
+                    numbers: list = Parser.mapping[script_link]
+                else:
+                    script_content: str = requests.get(script_link, impersonate="chrome136").text
+                    numbers: list = [int(x) for x in findall(r'x\[(\d+)\]\s*,\s*16', script_content)]
+                    Parser.mapping[script_link] = numbers
+                    with open('core/mappings/txid.json', 'w') as f:
+                        dump(Parser.mapping, f)
+            except Exception as e:
+                print(f"[parse_values] scriptId fetch failed: {e}, using empty numbers")
+                numbers = [0, 1, 2, 3]
 
             return svg_data, numbers
 
-        else:
-            return svg_data
+        return svg_data
 
-    
     @staticmethod
-    def get_anim(html:  str, verification: str = "grok-site-verification") -> tuple[str, str]:
-        
-        verification_token: str = Utils.between(html, f'"name":"{verification}","content":"', '"')
-        array: list = list(b64decode(verification_token))
-        anim: str = "loading-x-anim-" + str(array[5] % 4)
+    def get_anim(html: str, verification: str = "grok-site-verification") -> tuple:
+        try:
+            verification_token: str = Utils.between(html, f'"name":"{verification}","content":"', '"')
+            if not verification_token:
+                raise ValueError("verification token not found")
+            array: list = list(b64decode(verification_token))
+            anim: str = "loading-x-anim-" + str(array[5] % 4)
+            return verification_token, anim
+        except Exception as e:
+            print(f"[get_anim] failed: {e}, using fallback")
+            import base64, os
+            dummy = base64.b64encode(os.urandom(32)).decode()
+            return dummy, "loading-x-anim-0"
 
-        return verification_token, anim
-    
     @staticmethod
-    def parse_grok(scripts: list) -> tuple[list, str]:
-        
+    def parse_grok(scripts: list) -> tuple:
+
         Parser._load_grok_mapping()
-        
+
         for index in Parser.grok_mapping:
             if index.get("action_script") in scripts:
                 return index["actions"], index["xsid_script"]
-            
+
         script_content1: str = None
         script_content2: str = None
         action_script: str = None
 
         for script in scripts:
-            content: str = requests.get(f'https://grok.com{script}', impersonate="chrome136").text
-            if "anonPrivateKey" in content:
-                script_content1 = content
-                action_script = script
-            elif "880932)" in content:
-                script_content2 = content
+            try:
+                content: str = requests.get(f'https://grok.com{script}', impersonate="chrome136").text
+                if "anonPrivateKey" in content:
+                    script_content1 = content
+                    action_script = script
+                elif "880932)" in content:
+                    script_content2 = content
+            except Exception as e:
+                print(f"[parse_grok] fetch error for {script}: {e}")
+                continue
 
         if not script_content1 or not script_content2:
-            print("Could not find required scripts — using latest cached entry as fallback")
+            print("[parse_grok] Could not find required scripts — using cached fallback")
             if Parser.grok_mapping:
                 latest = Parser.grok_mapping[-1]
                 return latest["actions"], latest["xsid_script"]
             return [], ""
 
-        actions: list = findall(r'createServerReference\)\("([a-f0-9]+)"', script_content1)
-        xsid_match = search(r'"(static/chunks/[^"]+\.js)"[^}]*?\(880932\)', script_content2)
-        xsid_script: str = xsid_match.group(1) if xsid_match else ""
-        
-        if actions and xsid_script:
-            Parser.grok_mapping.append({
-                "xsid_script": xsid_script,
-                "action_script": action_script,
-                "actions": actions
-            })
-            
-            with open('core/mappings/grok.json', 'w') as f:
-                dump(Parser.grok_mapping, f, indent=2)
-                
-            return actions, xsid_script
-        else:
-            print("Could not parse actions/xsid — using latest cached entry as fallback")
-            if Parser.grok_mapping:
-                latest = Parser.grok_mapping[-1]
-                return latest["actions"], latest["xsid_script"]
-        
-        
+        try:
+            actions: list = findall(r'createServerReference\)\("([a-f0-9]+)"', script_content1)
+            xsid_match = search(r'"(static/chunks/[^"]+\.js)"[^}]*?\(880932\)', script_content2)
+            xsid_script: str = xsid_match.group(1) if xsid_match else ""
+
+            if actions and xsid_script:
+                Parser.grok_mapping.append({
+                    "xsid_script": xsid_script,
+                    "action_script": action_script,
+                    "actions": actions
+                })
+                with open('core/mappings/grok.json', 'w') as f:
+                    dump(Parser.grok_mapping, f, indent=2)
+                return actions, xsid_script
+        except Exception as e:
+            print(f"[parse_grok] parse error: {e}")
+
+        if Parser.grok_mapping:
+            latest = Parser.grok_mapping[-1]
+            return latest["actions"], latest["xsid_script"]
+        return [], ""

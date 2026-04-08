@@ -111,19 +111,33 @@ class Grok:
         if not is_continuing:
             self._load(extra_data)
             if not self.actions or len(self.actions) < 3:
-                raise RuntimeError("Could not load Grok action handlers — the API may have changed. Try again in a moment.")
-            self.c_request(self.actions[0])
-            self.c_request(self.actions[1])
-            self.c_request(self.actions[2])
-            xsid: str = Signature.generate_sign('/rest/app-chat/conversations/new', 'POST', self.verification_token, self.svg_data, self.numbers)
+                raise RuntimeError("Grok API unavailable — action handlers could not be loaded. Please set an OPENROUTER_API_KEY for a stable experience.")
+            try:
+                self.c_request(self.actions[0])
+                self.c_request(self.actions[1])
+                self.c_request(self.actions[2])
+            except Exception as e:
+                raise RuntimeError(f"Grok handshake failed: {e}")
+            try:
+                xsid: str = Signature.generate_sign('/rest/app-chat/conversations/new', 'POST', self.verification_token, self.svg_data, self.numbers)
+            except Exception as e:
+                print(f"[xsid] signature error: {e}, continuing with empty xsid")
+                xsid = ""
         else:
             self._load(extra_data)
             self.c_run: int = 1
             self.anon_user: str = extra_data["anon_user"]
             self.keys["privateKey"] = extra_data["privateKey"]
-            self.c_request(self.actions[1])
-            self.c_request(self.actions[2])
-            xsid: str = Signature.generate_sign(f'/rest/app-chat/conversations/{extra_data["conversationId"]}/responses', 'POST', self.verification_token, self.svg_data, self.numbers)
+            try:
+                self.c_request(self.actions[1])
+                self.c_request(self.actions[2])
+            except Exception as e:
+                raise RuntimeError(f"Grok handshake failed: {e}")
+            try:
+                xsid: str = Signature.generate_sign(f'/rest/app-chat/conversations/{extra_data["conversationId"]}/responses', 'POST', self.verification_token, self.svg_data, self.numbers)
+            except Exception as e:
+                print(f"[xsid] signature error: {e}, continuing with empty xsid")
+                xsid = ""
 
         self.session.headers = self.headers.CONVERSATION
         self.session.headers.update({

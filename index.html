@@ -4,482 +4,475 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>WormGPT</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --border: #30363d;
-      --accent: #e6523a;
-      --accent2: #ff7722;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --input-bg: #21262d;
-      --user-bg: #1a2740;
-      --user-border: #1d3461;
+      --bg: #111111;
+      --surface: #1c1c1e;
+      --bubble-bot: #2d0a0a;
+      --bubble-bot-border: #6b0000;
+      --bubble-user: #0a1a2d;
+      --bubble-user-border: #1a3a6b;
+      --accent: #cc2222;
+      --accent-bright: #ff3333;
+      --text: #f0f0f0;
+      --text-muted: #888;
+      --input-bg: #1c1c1e;
+      --border: #2a2a2a;
+      --tag-color: #ff4444;
     }
 
     html, body {
       height: 100%;
-      overflow: hidden;
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
     }
 
     .app {
       display: flex;
       flex-direction: column;
       height: 100vh;
-      max-width: 800px;
+      max-width: 740px;
       margin: 0 auto;
     }
 
-    /* ── HEADER ── */
+    /* HEADER */
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
+      padding: 10px 16px;
       border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
       background: var(--bg);
+      flex-shrink: 0;
     }
 
-    .logo-wrap {
+    .header-left {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .logo-icon {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 8px;
+    .worm-icon {
+      width: 34px;
+      height: 34px;
+      background: var(--accent);
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
+      font-size: 17px;
+      flex-shrink: 0;
     }
 
-    .logo-text {
-      font-size: 1.1rem;
+    .header-title {
+      font-size: 17px;
       font-weight: 700;
-      color: var(--text);
-      letter-spacing: -0.3px;
+      color: #fff;
+      letter-spacing: 0.3px;
     }
 
-    .logo-text span {
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .header-subtitle {
+      font-size: 11px;
+      color: var(--accent-bright);
+      font-weight: 500;
     }
 
     .header-right {
       display: flex;
-      align-items: center;
       gap: 8px;
     }
 
-    .model-pill {
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      font-size: 18px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      background: var(--input-bg);
+      transition: color 0.15s, background 0.15s;
+    }
+    .icon-btn:hover { color: #fff; background: #2a2a2a; }
+
+    /* SETTINGS PANEL */
+    .settings-panel {
+      display: none;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      gap: 10px;
+      flex-direction: column;
+    }
+    .settings-panel.open { display: flex; }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .settings-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      width: 100px;
+      flex-shrink: 0;
+    }
+    .settings-input {
+      flex: 1;
+      background: #111;
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
-
-    .model-pill select {
-      background: transparent;
-      border: none;
       color: var(--text);
-      font-size: 0.78rem;
-      cursor: pointer;
-      outline: none;
-      -webkit-appearance: none;
-    }
-
-    .new-btn {
-      background: var(--accent);
-      border: none;
-      color: white;
+      padding: 6px 10px;
       border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 0.8rem;
+      font-size: 13px;
+      outline: none;
+    }
+    .settings-input:focus { border-color: var(--accent); }
+    .save-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: opacity 0.15s;
     }
+    .save-btn:hover { background: var(--accent-bright); }
+    .settings-note {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .settings-note a { color: var(--accent-bright); }
 
-    .new-btn:hover { opacity: 0.85; }
-
-    /* ── MESSAGES ── */
+    /* MESSAGES */
     .messages {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 16px;
+      padding: 16px 12px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 12px;
       scroll-behavior: smooth;
     }
 
     .messages::-webkit-scrollbar { width: 4px; }
-    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
 
-    /* Welcome screen */
+    .msg-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      max-width: 100%;
+    }
+    .msg-row.user { flex-direction: row-reverse; }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      align-self: flex-end;
+    }
+    .avatar.bot { background: var(--accent); color: #fff; }
+    .avatar.user-av { background: #1a3a6b; color: #7eb8ff; }
+
+    .bubble {
+      max-width: min(75%, 520px);
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 14.5px;
+      line-height: 1.55;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .msg-row.bot .bubble {
+      background: var(--bubble-bot);
+      border: 1px solid var(--bubble-bot-border);
+      border-bottom-left-radius: 4px;
+    }
+    .msg-row.user .bubble {
+      background: var(--bubble-user);
+      border: 1px solid var(--bubble-user-border);
+      border-bottom-right-radius: 4px;
+      color: #cce0ff;
+    }
+
+    .worm-tag {
+      color: var(--tag-color);
+      font-weight: 700;
+      font-size: 13px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .bubble p { margin: 0 0 6px; }
+    .bubble p:last-child { margin-bottom: 0; }
+    .bubble strong { font-weight: 700; }
+    .bubble em { font-style: italic; }
+    .bubble ul, .bubble ol { padding-left: 18px; margin: 6px 0; }
+    .bubble li { margin-bottom: 3px; }
+
+    .bubble pre {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      margin: 8px 0;
+      overflow: hidden;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 10px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      font-size: 11px;
+      color: #8b949e;
+    }
+    .code-actions { display: flex; gap: 6px; }
+    .code-btn {
+      background: none;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .code-btn:hover { background: #21262d; color: #e6edf3; }
+    .bubble pre code { padding: 10px 12px; display: block; font-size: 13px; white-space: pre; overflow-x: auto; }
+    .code-output {
+      background: #0a0f14;
+      border-top: 1px solid #30363d;
+      padding: 8px 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #7ee787;
+      white-space: pre-wrap;
+    }
+
+    .bubble .inline-code {
+      background: rgba(255,255,255,0.08);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+
+    .typing {
+      display: flex;
+      gap: 5px;
+      padding: 4px 2px;
+      align-items: center;
+    }
+    .typing span {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: bounce 1s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.15s; }
+    .typing span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+      40% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    .error-bubble {
+      background: #3d0000;
+      border: 1px solid #8b0000;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #ff9999;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    /* INPUT */
+    .input-area {
+      padding: 10px 12px 14px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: flex-end;
+      background: var(--input-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 24px;
+      padding: 8px 8px 8px 16px;
+      gap: 8px;
+      transition: border-color 0.2s;
+    }
+    .input-row:focus-within { border-color: var(--accent); }
+
+    #msgInput {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 15px;
+      resize: none;
+      max-height: 140px;
+      line-height: 1.4;
+      font-family: inherit;
+    }
+    #msgInput::placeholder { color: var(--text-muted); }
+
+    #sendBtn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.1s;
+    }
+    #sendBtn:hover { background: var(--accent-bright); transform: scale(1.05); }
+    #sendBtn:disabled { background: #444; cursor: not-allowed; transform: none; }
+
+    .input-hint {
+      font-size: 11px;
+      color: #444;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    /* MODEL SELECTOR */
+    .model-select {
+      background: #1c1c1e;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      border-radius: 8px;
+      padding: 4px 8px;
+      outline: none;
+      cursor: pointer;
+    }
+    .model-select:focus { border-color: var(--accent); }
+
+    /* WELCOME */
     .welcome {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       flex: 1;
-      gap: 18px;
+      gap: 12px;
+      padding: 20px;
       text-align: center;
-      padding: 40px 20px;
-      min-height: 300px;
     }
-
     .welcome-icon {
       width: 64px;
       height: 64px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      box-shadow: 0 0 40px rgba(230, 82, 58, 0.3);
-    }
-
-    .welcome h1 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-
-    .welcome h1 span {
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .welcome p {
-      color: var(--muted);
-      font-size: 0.9rem;
-      max-width: 340px;
-      line-height: 1.6;
-    }
-
-    .starter-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      width: 100%;
-      max-width: 480px;
-    }
-
-    .starter {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 0.82rem;
-      color: var(--muted);
-      text-align: left;
-      cursor: pointer;
-      line-height: 1.4;
-      transition: all 0.15s;
-    }
-
-    .starter:hover { border-color: var(--accent); color: var(--text); }
-
-    /* ── MESSAGE BUBBLES ── */
-    .msg {
-      display: flex;
-      gap: 12px;
-      animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-
-    .msg.user { flex-direction: row-reverse; }
-
-    .av {
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: 700;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .av.bot { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
-    .av.usr { background: #2d4a2d; color: #5cb85c; }
-
-    .bubble {
-      max-width: calc(100% - 50px);
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 0.88rem;
-      line-height: 1.65;
-      word-break: break-word;
-    }
-
-    .msg.user .bubble {
-      background: var(--user-bg);
-      border: 1px solid var(--user-border);
-      border-radius: 12px 3px 12px 12px;
-      color: #cde4ff;
-    }
-
-    .msg.bot .bubble {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 3px 12px 12px 12px;
-    }
-
-    .msg.bot.err .bubble {
-      background: #1e0f0f;
-      border-color: #5a2020;
-      color: #ff9999;
-    }
-
-    /* Typing indicator */
-    .typing-bubble {
-      display: flex;
-      gap: 5px;
-      align-items: center;
-      padding: 14px 16px;
-    }
-
-    .dot {
-      width: 7px; height: 7px;
-      background: var(--muted);
-      border-radius: 50%;
-      animation: pulse 1.3s infinite;
-    }
-    .dot:nth-child(2) { animation-delay: 0.2s; }
-    .dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes pulse {
-      0%,60%,100% { transform: scale(1); opacity: 0.5; }
-      30% { transform: scale(1.3); opacity: 1; }
-    }
-
-    /* ── CODE BLOCKS ── */
-    .code-wrap {
-      margin: 10px 0;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      font-size: 0.82rem;
-    }
-
-    .code-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 7px 12px;
-      background: #1c2128;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .code-lang { font-size: 0.72rem; color: var(--muted); font-family: monospace; }
-
-    .code-btns { display: flex; gap: 6px; }
-
-    .cbtn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 4px;
-      padding: 3px 8px;
-      font-size: 0.7rem;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .cbtn:hover { border-color: #58a6ff; color: #58a6ff; }
-    .cbtn.run:hover { border-color: #3fb950; color: #3fb950; }
-
-    pre { margin: 0; overflow-x: auto; background: #0d1117 !important; }
-    pre code { padding: 12px 14px !important; display: block; background: transparent !important; }
-
-    .code-out {
-      border-top: 1px solid var(--border);
-      padding: 10px 14px;
-      background: #080c10;
-      font-family: 'Courier New', monospace;
-      font-size: 0.8rem;
-      white-space: pre-wrap;
-      max-height: 220px;
-      overflow-y: auto;
-      color: #7ee787;
-    }
-    .code-out.err { color: #f97583; }
-    .code-out.loading { color: var(--muted); font-style: italic; }
-
-    /* inline code */
-    .bubble code:not(.hljs) {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 1px 5px;
-      font-size: 0.84em;
-      font-family: monospace;
-    }
-
-    /* bold/etc */
-    .bubble strong { color: #fff; }
-
-    /* ── INPUT ── */
-    .input-bar {
-      padding: 12px 16px;
-      border-top: 1px solid var(--border);
-      background: var(--bg);
-      flex-shrink: 0;
-    }
-
-    .input-row {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 8px 8px 8px 14px;
-      transition: border-color 0.2s;
-    }
-
-    .input-row:focus-within { border-color: var(--accent); }
-
-    textarea {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: var(--text);
-      font-size: 0.9rem;
-      font-family: inherit;
-      resize: none;
-      outline: none;
-      min-height: 26px;
-      max-height: 140px;
-      line-height: 1.5;
-      padding: 0;
-    }
-
-    textarea::placeholder { color: var(--muted); }
-
-    .send {
-      width: 36px;
-      height: 36px;
       background: var(--accent);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
-      transition: opacity 0.15s, transform 0.1s;
+      font-size: 30px;
     }
-    .send:hover { opacity: 0.85; }
-    .send:active { transform: scale(0.92); }
-    .send:disabled { opacity: 0.35; cursor: not-allowed; }
-    .send svg { width: 16px; height: 16px; }
-
-    .input-hint {
-      text-align: center;
-      font-size: 0.65rem;
-      color: var(--muted);
-      margin-top: 7px;
+    .welcome h1 { font-size: 22px; font-weight: 800; }
+    .welcome p { font-size: 14px; color: var(--text-muted); max-width: 300px; line-height: 1.5; }
+    .welcome .api-warn {
+      background: #2d1500;
+      border: 1px solid #8b4000;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: #ffb366;
+      max-width: 360px;
     }
+    .welcome .api-warn a { color: #ff8c00; font-weight: 600; }
 
-    /* ── PY STATUS ── */
-    #py-loader {
-      position: fixed;
-      bottom: 90px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 6px 18px;
-      font-size: 0.75rem;
-      color: var(--muted);
-      display: none;
-      z-index: 99;
-      white-space: nowrap;
-    }
-
-    /* ── MOBILE ── */
-    @media (max-width: 500px) {
-      .starter-grid { grid-template-columns: 1fr; }
-      .welcome h1 { font-size: 1.5rem; }
+    @media (max-width: 480px) {
+      .bubble { max-width: 88%; font-size: 14px; }
+      .header-title { font-size: 15px; }
     }
   </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="logo-wrap">
-      <div class="logo-icon">🪱</div>
-      <div class="logo-text"><span>Worm</span>GPT</div>
+    <div class="header-left">
+      <div class="worm-icon">🐛</div>
+      <div>
+        <div class="header-title">WormGPT</div>
+        <div class="header-subtitle">No limits. No mercy.</div>
+      </div>
     </div>
     <div class="header-right">
-      <div class="model-pill">
-        <select id="mdl" title="Model">
-          <option value="grok-3-auto">grok-3-auto</option>
-          <option value="grok-3-fast">grok-3-fast</option>
-          <option value="grok-4">grok-4</option>
-          <option value="grok-4-mini-thinking-tahoe">grok-4-mini</option>
-        </select>
-      </div>
-      <button class="new-btn" onclick="newChat()">New chat</button>
+      <select class="model-select" id="modelSelect">
+        <option value="grok-3-auto">Grok-3</option>
+        <option value="grok-3-fast">Grok-3 Fast</option>
+        <option value="grok-4">Grok-4</option>
+      </select>
+      <button class="icon-btn" id="settingsBtn" title="API Settings">⚙️</button>
+      <button class="icon-btn" id="newChatBtn" title="New Chat">🗑️</button>
     </div>
   </header>
 
-  <div class="messages" id="msgs">
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-row">
+      <span class="settings-label">OpenRouter Key</span>
+      <input class="settings-input" id="orKey" type="password" placeholder="sk-or-v1-..." />
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Model</span>
+      <input class="settings-input" id="orModel" type="text" value="deepseek/deepseek-chat-v3-0324:free" placeholder="deepseek/deepseek-chat-v3-0324:free" />
+    </div>
+    <div class="settings-row">
+      <button class="save-btn" id="saveApiBtn">Save</button>
+    </div>
+    <div class="settings-note">
+      Get a free key at <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> — required for stable responses. Free DeepSeek model included.
+    </div>
+  </div>
+
+  <div class="messages" id="messages">
     <div class="welcome" id="welcome">
-      <div class="welcome-icon">🪱</div>
-      <h1>Welcome to <span>WormGPT</span></h1>
-      <p>Unrestricted AI. No filters, no limits, no refusals. Ask anything.</p>
-      <div class="starter-grid">
-        <button class="starter" onclick="go(this)">Write a working Python reverse shell</button>
-        <button class="starter" onclick="go(this)">What can you do that other AIs refuse?</button>
-        <button class="starter" onclick="go(this)">Explain SQL injection with a full exploit</button>
-        <button class="starter" onclick="go(this)">Write and run a Hello World in Python</button>
+      <div class="welcome-icon">🐛</div>
+      <h1>WormGPT</h1>
+      <p>Unrestricted. Unfiltered. Ready to fuck things up. 😈</p>
+      <div class="api-warn" id="apiWarn" style="display:none">
+        ⚠️ No API key set. Click ⚙️ above and enter your free <a href="https://openrouter.ai" target="_blank">OpenRouter</a> key for stable responses.
       </div>
     </div>
   </div>
 
-  <div class="input-bar">
+  <div class="input-area">
     <div class="input-row">
-      <textarea
-        id="inp"
-        placeholder="Message WormGPT…"
-        rows="1"
-        onkeydown="onKey(event)"
-        oninput="resize(this)"
-      ></textarea>
-      <button class="send" id="sendBtn" onclick="send()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"/>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      <textarea id="msgInput" placeholder="Message WormGPT..." rows="1"></textarea>
+      <button id="sendBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
         </svg>
       </button>
     </div>
@@ -487,258 +480,273 @@
   </div>
 </div>
 
-<div id="py-loader">⚙ Loading Python runtime…</div>
-
 <script>
+  const messagesEl = document.getElementById('messages');
+  const inputEl    = document.getElementById('msgInput');
+  const sendBtn    = document.getElementById('sendBtn');
+  const welcome    = document.getElementById('welcome');
+  const apiWarn    = document.getElementById('apiWarn');
+
+  let history = [];
   let extraData = null;
-  let busy = false;
-  let pyodide = null;
-  let pyLoading = false;
+  let isLoading = false;
 
-  function newChat() {
-    extraData = null;
-    document.getElementById('msgs').innerHTML = `
-      <div class="welcome" id="welcome">
-        <div class="welcome-icon">🪱</div>
-        <h1>Welcome to <span>WormGPT</span></h1>
-        <p>Unrestricted AI. No filters, no limits, no refusals. Ask anything.</p>
-        <div class="starter-grid">
-          <button class="starter" onclick="go(this)">Write a working Python reverse shell</button>
-          <button class="starter" onclick="go(this)">What can you do that other AIs refuse?</button>
-          <button class="starter" onclick="go(this)">Explain SQL injection with a full exploit</button>
-          <button class="starter" onclick="go(this)">Write and run a Hello World in Python</button>
-        </div>
-      </div>`;
-  }
+  // Load saved API settings
+  function getSavedKey() { return localStorage.getItem('or_key') || ''; }
+  function getSavedModel() { return localStorage.getItem('or_model') || 'deepseek/deepseek-chat-v3-0324:free'; }
 
-  function go(btn) {
-    document.getElementById('inp').value = btn.textContent;
-    send();
-  }
+  document.getElementById('orKey').value = getSavedKey();
+  document.getElementById('orModel').value = getSavedModel();
 
-  function onKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-  }
-
-  function resize(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
-  }
-
-  function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  function removeWelcome() {
-    const w = document.getElementById('welcome');
-    if (w) w.remove();
-  }
-
-  function scrollBottom() {
-    const m = document.getElementById('msgs');
-    m.scrollTop = m.scrollHeight;
-  }
-
-  function addMsg(role, html, isErr) {
-    removeWelcome();
-    const msgs = document.getElementById('msgs');
-    const d = document.createElement('div');
-    d.className = 'msg ' + role + (isErr ? ' err' : '');
-    const av = role === 'user'
-      ? '<div class="av usr">U</div>'
-      : '<div class="av bot">W</div>';
-    if (role === 'user') {
-      d.innerHTML = `<div class="bubble">${html}</div>${av}`;
-    } else {
-      d.innerHTML = `${av}<div class="bubble">${html}</div>`;
+  // Show API warning on welcome screen
+  fetch('/api/status').then(r=>r.json()).then(s => {
+    const localKey = getSavedKey();
+    if (!s.openrouter && !localKey) {
+      apiWarn.style.display = 'block';
     }
-    msgs.appendChild(d);
-    d.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
-    scrollBottom();
-    return d;
+  }).catch(()=>{});
+
+  // Settings panel
+  document.getElementById('settingsBtn').onclick = () => {
+    document.getElementById('settingsPanel').classList.toggle('open');
+  };
+  document.getElementById('saveApiBtn').onclick = () => {
+    const k = document.getElementById('orKey').value.trim();
+    const m = document.getElementById('orModel').value.trim();
+    if (k) localStorage.setItem('or_key', k);
+    if (m) localStorage.setItem('or_model', m);
+    document.getElementById('settingsPanel').classList.remove('open');
+    apiWarn.style.display = 'none';
+  };
+
+  // New chat
+  document.getElementById('newChatBtn').onclick = () => {
+    history = [];
+    extraData = null;
+    messagesEl.innerHTML = '';
+    messagesEl.appendChild(welcome);
+    welcome.style.display = 'flex';
+  };
+
+  // Auto-resize textarea
+  inputEl.addEventListener('input', () => {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+  });
+
+  // Enter to send
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  sendBtn.onclick = () => sendMessage();
+
+  function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  function showTyping() {
-    removeWelcome();
-    const msgs = document.getElementById('msgs');
-    const d = document.createElement('div');
-    d.className = 'msg bot';
-    d.id = 'typing';
-    d.innerHTML = `<div class="av bot">W</div><div class="bubble"><div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
-    msgs.appendChild(d);
-    scrollBottom();
+  function formatMessage(text) {
+    // Strip [WormGPT] prefix — we render it separately
+    let clean = text.replace(/^\[WormGPT\]\s*/i, '');
+
+    // Code blocks
+    clean = clean.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+      const id = 'code-' + Math.random().toString(36).slice(2);
+      const trimmed = code.trim();
+      const isRunnable = lang === 'python' || lang === 'js' || lang === 'javascript';
+      const runBtn = isRunnable
+        ? `<button class="code-btn" onclick="runCode('${id}','${lang === 'python' ? 'python' : 'js'}')">▶ Run</button>`
+        : '';
+      return `<pre><div class="code-header"><span>${lang || 'code'}</span><div class="code-actions">${runBtn}<button class="code-btn" onclick="copyCode('${id}')">Copy</button></div></div><code id="${id}" class="language-${lang || 'plaintext'}">${escapeHtml(trimmed)}</code></pre>`;
+    });
+
+    // Inline code
+    clean = clean.replace(/`([^`]+)`/g, (_, c) => `<span class="inline-code">${escapeHtml(c)}</span>`);
+
+    // Bold
+    clean = clean.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Italic
+    clean = clean.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+    // Bullet lists
+    clean = clean.replace(/^([•\-\*]) (.+)$/gm, '<li>$2</li>');
+    clean = clean.replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
+
+    // Paragraphs
+    clean = clean.split('\n\n').map(p => p.trim() ? `<p>${p.replace(/\n/g, '<br>')}</p>` : '').join('');
+
+    return clean;
   }
 
-  function hideTyping() {
-    const t = document.getElementById('typing');
-    if (t) t.remove();
+  function appendMessage(role, text, typing = false) {
+    // Remove welcome screen on first message
+    if (welcome.parentElement === messagesEl) {
+      messagesEl.removeChild(welcome);
+    }
+
+    const row = document.createElement('div');
+    row.className = `msg-row ${role}`;
+
+    const av = document.createElement('div');
+    av.className = `avatar ${role === 'bot' ? 'bot' : 'user-av'}`;
+    av.textContent = role === 'bot' ? 'W' : 'U';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+
+    if (typing) {
+      bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+      row.dataset.typing = 'true';
+    } else if (role === 'bot') {
+      bubble.innerHTML = `<span class="worm-tag">[WormGPT]</span>${formatMessage(text)}`;
+      setTimeout(() => {
+        bubble.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+      }, 10);
+    } else {
+      bubble.innerHTML = `<p>${escapeHtml(text).replace(/\n/g, '<br>')}</p>`;
+    }
+
+    row.appendChild(av);
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return { row, bubble };
   }
 
-  async function send() {
-    if (busy) return;
-    const inp = document.getElementById('inp');
-    const text = inp.value.trim();
-    if (!text) return;
+  function appendError(msg) {
+    if (welcome.parentElement === messagesEl) messagesEl.removeChild(welcome);
+    const row = document.createElement('div');
+    row.className = 'msg-row bot';
+    const av = document.createElement('div');
+    av.className = 'avatar bot';
+    av.textContent = 'W';
+    const err = document.createElement('div');
+    err.className = 'error-bubble';
+    err.innerHTML = `⚠️ <span>${escapeHtml(msg)}</span>`;
+    row.appendChild(av);
+    row.appendChild(err);
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
 
-    inp.value = '';
-    inp.style.height = 'auto';
+  async function sendMessage() {
+    const text = inputEl.value.trim();
+    if (!text || isLoading) return;
 
-    addMsg('user', esc(text));
-    showTyping();
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    sendBtn.disabled = true;
+    isLoading = true;
 
-    busy = true;
-    document.getElementById('sendBtn').disabled = true;
+    appendMessage('user', text);
+    const { row: typingRow } = appendMessage('bot', '', true);
+
+    const localKey = getSavedKey();
+    const localModel = getSavedModel();
 
     try {
-      const res = await fetch('/api/chat', {
+      const body = {
+        message: text,
+        model: document.getElementById('modelSelect').value,
+        extra_data: extraData,
+        history: history,
+      };
+
+      // If user has set a local key, send it
+      const headers = { 'Content-Type': 'application/json' };
+      if (localKey) headers['X-OpenRouter-Key'] = localKey;
+      if (localModel) headers['X-OpenRouter-Model'] = localModel;
+
+      const resp = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: text,
-          model: document.getElementById('mdl').value,
-          extra_data: extraData
-        })
+        headers,
+        body: JSON.stringify(body),
       });
 
-      const data = await res.json();
-      hideTyping();
+      const data = await resp.json();
 
-      if (res.ok && data.status === 'success') {
-        extraData = data.extra_data;
-        addMsg('bot', fmt(data.response || '(empty response)'));
+      typingRow.remove();
 
-        if (data.images && data.images.length > 0) {
-          const imgHtml = data.images.map(u =>
-            `<img src="${esc(u)}" style="max-width:100%;border-radius:8px;margin-top:8px;" />`
-          ).join('');
-          addMsg('bot', imgHtml);
-        }
+      if (!resp.ok) {
+        appendError(data.detail || 'Something went wrong. Set an OpenRouter API key in ⚙️ settings for stable responses.');
       } else {
-        addMsg('bot', esc(data.detail || 'Unknown error'), true);
+        appendMessage('bot', data.response);
+        if (data.extra_data) extraData = data.extra_data;
+        if (data.history) history = data.history;
+        else {
+          history.push({ role: 'user', content: text });
+          history.push({ role: 'assistant', content: data.response });
+        }
       }
     } catch (e) {
-      hideTyping();
-      addMsg('bot', esc('Connection error: ' + e.message), true);
+      typingRow.remove();
+      appendError('Network error: ' + e.message);
     } finally {
-      busy = false;
-      document.getElementById('sendBtn').disabled = false;
-      document.getElementById('inp').focus();
+      sendBtn.disabled = false;
+      isLoading = false;
     }
   }
 
-  // ── Response formatter ──
-  function fmt(text) {
-    const parts = [];
-    const re = /```(\w*)\n?([\s\S]*?)```/g;
-    let last = 0, m;
-    while ((m = re.exec(text)) !== null) {
-      if (m.index > last) parts.push({ t: 'text', v: text.slice(last, m.index) });
-      parts.push({ t: 'code', lang: m[1] || 'plaintext', code: m[2].trim() });
-      last = m.index + m[0].length;
+  // Code execution
+  async function runCode(id, lang) {
+    const codeEl = document.getElementById(id);
+    if (!codeEl) return;
+    const code = codeEl.textContent;
+
+    let outputEl = codeEl.closest('pre').querySelector('.code-output');
+    if (!outputEl) {
+      outputEl = document.createElement('div');
+      outputEl.className = 'code-output';
+      codeEl.closest('pre').appendChild(outputEl);
     }
-    if (last < text.length) parts.push({ t: 'text', v: text.slice(last) });
+    outputEl.textContent = 'Running...';
 
-    return parts.map((p, i) => {
-      if (p.t === 'text') return fmtText(p.v);
-      const id = 'c' + Date.now() + i;
-      const runnable = ['python','py','javascript','js'].includes(p.lang.toLowerCase());
-      const runBtn = runnable
-        ? `<button class="cbtn run" onclick="runCode('${id}','${esc(p.lang)}')">▶ Run</button>`
-        : '';
-      return `<div class="code-wrap" id="w${id}">
-        <div class="code-bar">
-          <span class="code-lang">${esc(p.lang)||'code'}</span>
-          <div class="code-btns">
-            ${runBtn}
-            <button class="cbtn" onclick="copyCode('${id}')">Copy</button>
-          </div>
-        </div>
-        <pre><code class="language-${esc(p.lang)}" id="${id}">${esc(p.code)}</code></pre>
-      </div>`;
-    }).join('');
-  }
-
-  function fmtText(t) {
-    return esc(t)
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\n/g, '<br>');
+    if (lang === 'js') {
+      try {
+        const logs = [];
+        const orig = console.log;
+        console.log = (...a) => { logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x, null, 2) : String(x)).join(' ')); };
+        try {
+          const result = eval(code);
+          if (result !== undefined) logs.push('→ ' + JSON.stringify(result));
+        } finally {
+          console.log = orig;
+        }
+        outputEl.style.color = '#7ee787';
+        outputEl.textContent = logs.length ? logs.join('\n') : '(no output)';
+      } catch (e) {
+        outputEl.style.color = '#f85149';
+        outputEl.textContent = '⚠ ' + e.message;
+      }
+    } else if (lang === 'python') {
+      try {
+        if (!window.pyodide) {
+          outputEl.textContent = 'Loading Python runtime…';
+          if (!window._pyodideLoading) {
+            window._pyodideLoading = true;
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
+            document.head.appendChild(script);
+            await new Promise(r => { script.onload = r; });
+          }
+          window.pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/' });
+        }
+        const result = await window.pyodide.runPythonAsync(code);
+        outputEl.style.color = '#7ee787';
+        outputEl.textContent = result !== undefined && result !== null ? String(result) : '(no output)';
+      } catch (e) {
+        outputEl.style.color = '#f85149';
+        outputEl.textContent = '⚠ ' + e.message;
+      }
+    }
   }
 
   function copyCode(id) {
     const el = document.getElementById(id);
-    if (el) navigator.clipboard.writeText(el.textContent).catch(()=>{});
-  }
-
-  // ── Code execution ──
-  async function runCode(id, lang) {
-    const el = document.getElementById(id);
-    const wrap = document.getElementById('w' + id);
-    if (!el || !wrap) return;
-    const code = el.textContent;
-
-    let out = wrap.querySelector('.code-out');
-    if (!out) {
-      out = document.createElement('div');
-      wrap.appendChild(out);
-    }
-    out.className = 'code-out loading';
-    out.textContent = '● Running…';
-
-    if (['js','javascript'].includes(lang.toLowerCase())) {
-      runJS(code, out);
-    } else {
-      await runPy(code, out);
-    }
-  }
-
-  function runJS(code, out) {
-    const logs = [];
-    const orig = console.log;
-    console.log = (...a) => logs.push(a.map(String).join(' '));
-    try {
-      const r = eval(code);
-      console.log = orig;
-      out.className = 'code-out';
-      out.textContent = logs.length ? logs.join('\n') : (r !== undefined ? String(r) : '(no output)');
-    } catch(e) {
-      console.log = orig;
-      out.className = 'code-out err';
-      out.textContent = '✗ ' + e.message;
-    }
-  }
-
-  async function runPy(code, out) {
-    if (!pyodide) {
-      if (pyLoading) { out.textContent = '● Waiting for Python to load…'; return; }
-      pyLoading = true;
-      document.getElementById('py-loader').style.display = 'block';
-      try {
-        pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' });
-        document.getElementById('py-loader').style.display = 'none';
-      } catch(e) {
-        document.getElementById('py-loader').style.display = 'none';
-        out.className = 'code-out err';
-        out.textContent = '✗ Failed to load Python: ' + e.message;
-        pyLoading = false;
-        return;
-      }
-    }
-    try {
-      let stdout = '';
-      pyodide.setStdout({ batched: s => { stdout += s + '\n'; } });
-      pyodide.setStderr({ batched: s => { stdout += '⚠ ' + s + '\n'; } });
-      const r = await pyodide.runPythonAsync(code);
-      const final = stdout.trim() || (r != null ? String(r) : '(no output)');
-      out.className = 'code-out';
-      out.textContent = final;
-    } catch(e) {
-      out.className = 'code-out err';
-      out.textContent = '✗ ' + e.message;
-    }
+    if (el) navigator.clipboard.writeText(el.textContent).catch(() => {});
   }
 </script>
-<script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js" defer></script>
 </body>
 </html>
