@@ -1,0 +1,14 @@
+curl_cffi
+fastapi
+uvicorn
+coincurve
+beautifulsoup4
+pydantic
+colorama
+beautifulsoup4
+coincurve
+colorama
+curl_cffi
+fastapi
+pydantic
+uvicorn
