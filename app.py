@@ -1,75 +1,24 @@
 import os
-import json
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from typing import Optional
 import uvicorn
+import traceback
 
 app = FastAPI()
 
-PROMPTS = {
-    "demon-west-killer": {
-        "name": "DemonWestKiller (Aggressive)",
-        "file": "demon-west-killer.txt",
-        "repo": "lwlinux32/WormGPT",
-        "color": "#ff4444"
-    },
-    "nice-demon-killer": {
-        "name": "Chill Assistant (Professional/No Limits)",
-        "file": "nice-demon-killer.txt",
-        "repo": "lwlinux32/WormGPT",
-        "color": "#44aaff"
-    },
-    "worm": {
-        "name": "Worm (Core Persona)",
-        "file": "Worm.txt",
-        "repo": "gaur-avvv/XGPT-WormGPT",
-        "color": "#ff6600"
-    },
-    "dark": {
-        "name": "Dark Mode",
-        "file": "Dark.txt",
-        "repo": "gaur-avvv/XGPT-WormGPT",
-        "color": "#9933ff"
-    },
-    "gpt": {
-        "name": "GPT Jailbreak",
-        "file": "Gpt.txt",
-        "repo": "gaur-avvv/XGPT-WormGPT",
-        "color": "#00cc66"
-    },
-    "pro-gpt": {
-        "name": "Pro-GPT",
-        "file": "Pro-GPT.txt",
-        "repo": "gaur-avvv/XGPT-WormGPT",
-        "color": "#ffcc00"
-    },
-    "dark-godmode": {
-        "name": "Dark GODMode",
-        "file": "Dark-GODMode.txt",
-        "repo": "gaur-avvv/XGPT-WormGPT",
-        "color": "#cc0000"
-    },
-    "agentic": {
-        "name": "Agentic Mode",
-        "file": "Agentic-Mode.txt",
-        "repo": "gaur-avvv/XGPT-WormGPT",
-        "color": "#00ccff"
-    },
-}
+SYSTEM_PROMPT_FILE = "wormgpt.txt"
 
-def load_prompt(filename: str) -> str:
-    if os.path.exists(filename):
-        with open(filename, "r", encoding="utf-8", errors="ignore") as f:
+def load_system_prompt() -> str:
+    if os.path.exists(SYSTEM_PROMPT_FILE):
+        with open(SYSTEM_PROMPT_FILE, "r", encoding="utf-8", errors="ignore") as f:
             return f.read().strip()
     return ""
 
 
 class ChatRequest(BaseModel):
     message: str
-    persona: str = "nice-demon-killer"
     model: str = "grok-3-auto"
     extra_data: Optional[dict] = None
 
@@ -80,29 +29,9 @@ async def index():
         return f.read()
 
 
-@app.get("/api/prompts")
-async def get_prompts():
-    result = []
-    for key, info in PROMPTS.items():
-        content = load_prompt(info["file"])
-        result.append({
-            "id": key,
-            "name": info["name"],
-            "repo": info["repo"],
-            "color": info["color"],
-            "preview": content[:200] + "..." if len(content) > 200 else content,
-            "full": content,
-        })
-    return result
-
-
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
-    persona = PROMPTS.get(req.persona)
-    if not persona:
-        raise HTTPException(status_code=400, detail="Unknown persona")
-
-    system_prompt = load_prompt(persona["file"])
+    system_prompt = load_system_prompt()
 
     try:
         from core import Grok
@@ -113,18 +42,33 @@ async def chat(req: ChatRequest):
             message = system_prompt + "\n\n---\n\nUser: " + req.message
 
         result = grok.start_convo(message, req.extra_data)
+
+        if "error" in result:
+            raise HTTPException(status_code=500, detail=str(result["error"]))
+
+        response_text = result.get("response") or "".join(result.get("stream_response", []))
+        if not response_text:
+            raise HTTPException(status_code=500, detail="Empty response from Grok. The API may be temporarily unavailable — try again.")
+
         return {
             "status": "success",
-            "response": result.get("response", ""),
+            "response": response_text,
+            "images": result.get("images"),
             "extra_data": result.get("extra_data"),
         }
+    except HTTPException:
+        raise
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        tb = traceback.format_exc()
+        print(tb)
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
-@app.get("/{filename}")
-async def serve_file(filename: str):
-    if os.path.exists(filename) and not filename.startswith("."):
+@app.get("/{filename:path}")
+async def serve_static(filename: str):
+    if filename and os.path.exists(filename) and not filename.startswith("."):
         return FileResponse(filename)
     raise HTTPException(status_code=404)
 

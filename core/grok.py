@@ -110,6 +110,8 @@ class Grok:
         
         if not is_continuing:
             self._load(extra_data)
+            if not self.actions or len(self.actions) < 3:
+                raise RuntimeError("Could not load Grok action handlers — the API may have changed. Try again in a moment.")
             self.c_request(self.actions[0])
             self.c_request(self.actions[1])
             self.c_request(self.actions[2])

@@ -90,11 +90,15 @@ class Parser:
                 script_content2 = content
 
         if not script_content1 or not script_content2:
-            print("Could not find required scripts — Grok page structure may have changed")
+            print("Could not find required scripts — using latest cached entry as fallback")
+            if Parser.grok_mapping:
+                latest = Parser.grok_mapping[-1]
+                return latest["actions"], latest["xsid_script"]
             return [], ""
 
         actions: list = findall(r'createServerReference\)\("([a-f0-9]+)"', script_content1)
-        xsid_script: str = search(r'"(static/chunks/[^"]+\.js)"[^}]*?\(880932\)', script_content2).group(1) if script_content2 else ""
+        xsid_match = search(r'"(static/chunks/[^"]+\.js)"[^}]*?\(880932\)', script_content2)
+        xsid_script: str = xsid_match.group(1) if xsid_match else ""
         
         if actions and xsid_script:
             Parser.grok_mapping.append({
@@ -108,6 +112,9 @@ class Parser:
                 
             return actions, xsid_script
         else:
-            print("Something went wrong while parsing script and actions")
+            print("Could not parse actions/xsid — using latest cached entry as fallback")
+            if Parser.grok_mapping:
+                latest = Parser.grok_mapping[-1]
+                return latest["actions"], latest["xsid_script"]
         
         

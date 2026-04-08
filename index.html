@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>WormGPT</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -12,334 +12,297 @@
     :root {
       --bg: #0d1117;
       --surface: #161b22;
-      --surface2: #1c2128;
       --border: #30363d;
-      --accent: #ff4444;
-      --accent2: #ff7700;
+      --accent: #e6523a;
+      --accent2: #ff7722;
       --text: #e6edf3;
       --muted: #8b949e;
       --input-bg: #21262d;
-      --code-bg: #0d1117;
+      --user-bg: #1a2740;
+      --user-border: #1d3461;
     }
 
-    html, body { height: 100%; overflow: hidden; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    html, body {
+      height: 100%;
+      overflow: hidden;
       background: var(--bg);
       color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .app {
       display: flex;
       flex-direction: column;
+      height: 100vh;
+      max-width: 800px;
+      margin: 0 auto;
     }
 
     /* ── HEADER ── */
     header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      background: var(--surface);
+      justify-content: space-between;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
-      z-index: 10;
+      background: var(--bg);
     }
 
-    .hamburger {
-      display: none;
-      background: none;
-      border: none;
-      color: var(--text);
-      font-size: 1.4rem;
-      cursor: pointer;
-      padding: 4px;
-      line-height: 1;
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .logo {
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .logo-text {
       font-size: 1.1rem;
-      font-weight: 800;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .logo-text span {
       background: linear-gradient(90deg, var(--accent), var(--accent2));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      white-space: nowrap;
-      flex-shrink: 0;
     }
 
-    .current-persona {
-      font-size: 0.75rem;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .header-actions {
+    .header-right {
       display: flex;
       align-items: center;
       gap: 8px;
-      flex-shrink: 0;
     }
 
-    select {
+    .model-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       background: var(--input-bg);
-      color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 5px 8px;
+      border-radius: 20px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .model-pill select {
+      background: transparent;
+      border: none;
+      color: var(--text);
       font-size: 0.78rem;
       cursor: pointer;
       outline: none;
+      -webkit-appearance: none;
     }
 
-    select:focus { border-color: var(--accent); }
-
-    .icon-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 6px;
-      padding: 5px 10px;
-      font-size: 0.78rem;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s;
-    }
-
-    .icon-btn:hover { border-color: var(--accent); color: var(--text); }
-
-    /* ── LAYOUT ── */
-    .layout {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: 240px;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      transition: transform 0.25s ease;
-    }
-
-    .sidebar-header {
-      padding: 12px 14px 6px;
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .persona-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 6px;
-    }
-
-    .persona-list::-webkit-scrollbar { width: 4px; }
-    .persona-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    .pi {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 10px;
+    .new-btn {
+      background: var(--accent);
+      border: none;
+      color: white;
       border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s;
-      border: 1px solid transparent;
+      transition: opacity 0.15s;
     }
 
-    .pi:hover { background: var(--input-bg); }
-    .pi.active { background: var(--input-bg); border-color: var(--border); }
+    .new-btn:hover { opacity: 0.85; }
 
-    .pi-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-    .pi-info { flex: 1; min-width: 0; }
-    .pi-name { font-size: 0.8rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pi-sub { font-size: 0.68rem; color: var(--muted); }
-
-    .pi-eye {
-      background: none; border: none; color: var(--muted);
-      cursor: pointer; font-size: 0.8rem; padding: 2px 4px;
-      border-radius: 4px; flex-shrink: 0;
-    }
-
-    .pi-eye:hover { color: var(--text); background: var(--border); }
-
-    /* Overlay for mobile sidebar */
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 49;
-    }
-
-    /* ── CHAT AREA ── */
-    .chat-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
+    /* ── MESSAGES ── */
     .messages {
       flex: 1;
       overflow-y: auto;
-      padding: 16px 12px;
+      padding: 20px 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
+      scroll-behavior: smooth;
     }
 
-    .messages::-webkit-scrollbar { width: 5px; }
-    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-    /* Welcome */
+    /* Welcome screen */
     .welcome {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       flex: 1;
+      gap: 18px;
       text-align: center;
-      padding: 30px 20px;
-      gap: 14px;
+      padding: 40px 20px;
+      min-height: 300px;
     }
 
-    .welcome-logo {
-      font-size: 2.6rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--accent), var(--accent2), #ffcc00);
+    .welcome-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 0 40px rgba(230, 82, 58, 0.3);
+    }
+
+    .welcome h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome h1 span {
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      letter-spacing: -1px;
     }
 
-    .welcome-sub { color: var(--muted); font-size: 0.88rem; line-height: 1.6; max-width: 340px; }
+    .welcome p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      max-width: 340px;
+      line-height: 1.6;
+    }
 
-    .suggestions {
+    .starter-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
       width: 100%;
-      max-width: 460px;
-      margin-top: 6px;
+      max-width: 480px;
     }
 
-    .sug {
+    .starter {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      cursor: pointer;
-      font-size: 0.8rem;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.82rem;
       color: var(--muted);
       text-align: left;
-      transition: all 0.15s;
+      cursor: pointer;
       line-height: 1.4;
+      transition: all 0.15s;
     }
 
-    .sug:hover { border-color: var(--accent); color: var(--text); }
+    .starter:hover { border-color: var(--accent); color: var(--text); }
 
-    /* Messages */
+    /* ── MESSAGE BUBBLES ── */
     .msg {
       display: flex;
-      gap: 10px;
-      max-width: 740px;
-      width: 100%;
+      gap: 12px;
+      animation: fadeIn 0.2s ease;
     }
 
-    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
-    .msg.bot  { align-self: flex-start; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    .msg.user { flex-direction: row-reverse; }
 
     .av {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 700;
       flex-shrink: 0;
       margin-top: 2px;
     }
 
-    .av.bot  { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
-    .av.user { background: #238636; }
+    .av.bot { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+    .av.usr { background: #2d4a2d; color: #5cb85c; }
 
     .bubble {
+      max-width: calc(100% - 50px);
       padding: 10px 14px;
       border-radius: 12px;
       font-size: 0.88rem;
       line-height: 1.65;
-      max-width: calc(100% - 44px);
       word-break: break-word;
     }
 
     .msg.user .bubble {
-      background: #1f3a5f;
-      border: 1px solid #1f4a7a;
-      border-radius: 12px 4px 12px 12px;
+      background: var(--user-bg);
+      border: 1px solid var(--user-border);
+      border-radius: 12px 3px 12px 12px;
+      color: #cde4ff;
     }
 
     .msg.bot .bubble {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 4px 12px 12px 12px;
+      border-radius: 3px 12px 12px 12px;
     }
 
-    .msg.error .bubble {
-      background: #2a1515;
-      border-color: #663333;
+    .msg.bot.err .bubble {
+      background: #1e0f0f;
+      border-color: #5a2020;
       color: #ff9999;
     }
 
-    /* Typing dots */
-    .typing-dots { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
-    .dot { width: 7px; height: 7px; background: var(--muted); border-radius: 50%; animation: bop 1.2s infinite; }
+    /* Typing indicator */
+    .typing-bubble {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      padding: 14px 16px;
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: pulse 1.3s infinite;
+    }
     .dot:nth-child(2) { animation-delay: 0.2s; }
     .dot:nth-child(3) { animation-delay: 0.4s; }
 
-    @keyframes bop {
-      0%,60%,100% { transform: translateY(0); }
-      30% { transform: translateY(-5px); }
+    @keyframes pulse {
+      0%,60%,100% { transform: scale(1); opacity: 0.5; }
+      30% { transform: scale(1.3); opacity: 1; }
     }
 
     /* ── CODE BLOCKS ── */
     .code-wrap {
-      margin: 8px 0;
+      margin: 10px 0;
       border: 1px solid var(--border);
       border-radius: 8px;
       overflow: hidden;
       font-size: 0.82rem;
     }
 
-    .code-header {
+    .code-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 12px;
+      padding: 7px 12px;
       background: #1c2128;
       border-bottom: 1px solid var(--border);
     }
 
     .code-lang { font-size: 0.72rem; color: var(--muted); font-family: monospace; }
 
-    .code-actions { display: flex; gap: 6px; }
+    .code-btns { display: flex; gap: 6px; }
 
-    .code-btn {
+    .cbtn {
       background: none;
       border: 1px solid var(--border);
       color: var(--muted);
@@ -349,34 +312,27 @@
       cursor: pointer;
       transition: all 0.15s;
     }
+    .cbtn:hover { border-color: #58a6ff; color: #58a6ff; }
+    .cbtn.run:hover { border-color: #3fb950; color: #3fb950; }
 
-    .code-btn:hover { border-color: #58a6ff; color: #58a6ff; }
-    .code-btn.run-btn:hover { border-color: #3fb950; color: #3fb950; }
-
-    pre {
-      margin: 0;
-      background: var(--code-bg) !important;
-      overflow-x: auto;
-    }
-
+    pre { margin: 0; overflow-x: auto; background: #0d1117 !important; }
     pre code { padding: 12px 14px !important; display: block; background: transparent !important; }
 
-    .code-output {
+    .code-out {
       border-top: 1px solid var(--border);
       padding: 10px 14px;
-      background: #0a0e14;
-      font-family: monospace;
+      background: #080c10;
+      font-family: 'Courier New', monospace;
       font-size: 0.8rem;
       white-space: pre-wrap;
-      max-height: 200px;
+      max-height: 220px;
       overflow-y: auto;
-      color: #a8ff78;
+      color: #7ee787;
     }
+    .code-out.err { color: #f97583; }
+    .code-out.loading { color: var(--muted); font-style: italic; }
 
-    .code-output.error { color: #ff8888; }
-    .code-output.loading { color: var(--muted); font-style: italic; }
-
-    /* Inline code */
+    /* inline code */
     .bubble code:not(.hljs) {
       background: var(--input-bg);
       border: 1px solid var(--border);
@@ -386,15 +342,14 @@
       font-family: monospace;
     }
 
-    /* Plain text paragraphs */
-    .bubble p { margin: 0 0 8px; }
-    .bubble p:last-child { margin-bottom: 0; }
+    /* bold/etc */
+    .bubble strong { color: #fff; }
 
     /* ── INPUT ── */
-    .input-area {
-      padding: 10px 12px;
-      background: var(--surface);
+    .input-bar {
+      padding: 12px 16px;
       border-top: 1px solid var(--border);
+      background: var(--bg);
       flex-shrink: 0;
     }
 
@@ -402,316 +357,161 @@
       display: flex;
       gap: 8px;
       align-items: flex-end;
-      max-width: 740px;
-      margin: 0 auto;
-    }
-
-    textarea {
-      flex: 1;
       background: var(--input-bg);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      padding: 10px 12px;
-      font-size: 0.88rem;
-      font-family: inherit;
-      resize: none;
-      outline: none;
-      min-height: 44px;
-      max-height: 140px;
-      line-height: 1.5;
+      border-radius: 12px;
+      padding: 8px 8px 8px 14px;
       transition: border-color 0.2s;
     }
 
-    textarea:focus { border-color: var(--accent); }
+    .input-row:focus-within { border-color: var(--accent); }
+
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      min-height: 26px;
+      max-height: 140px;
+      line-height: 1.5;
+      padding: 0;
+    }
+
     textarea::placeholder { color: var(--muted); }
 
-    .send-btn {
-      width: 44px;
-      height: 44px;
+    .send {
+      width: 36px;
+      height: 36px;
       background: var(--accent);
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       color: white;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: background 0.2s, transform 0.1s;
+      transition: opacity 0.15s, transform 0.1s;
     }
-
-    .send-btn:hover { background: #cc2222; }
-    .send-btn:active { transform: scale(0.93); }
-    .send-btn:disabled { background: var(--border); cursor: not-allowed; }
-
-    .send-btn svg { width: 17px; height: 17px; }
+    .send:hover { opacity: 0.85; }
+    .send:active { transform: scale(0.92); }
+    .send:disabled { opacity: 0.35; cursor: not-allowed; }
+    .send svg { width: 16px; height: 16px; }
 
     .input-hint {
       text-align: center;
       font-size: 0.65rem;
       color: var(--muted);
-      margin-top: 6px;
+      margin-top: 7px;
     }
 
-    /* ── MODAL ── */
-    .modal-bg {
-      display: none;
+    /* ── PY STATUS ── */
+    #py-loader {
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.75);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .modal-bg.open { display: flex; }
-
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      width: 100%;
-      max-width: 640px;
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .modal-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .modal-top h3 { font-size: 0.95rem; }
-
-    .modal-x {
-      background: none; border: none; color: var(--muted);
-      font-size: 1.3rem; cursor: pointer; line-height: 1;
-    }
-    .modal-x:hover { color: var(--text); }
-
-    .modal-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 18px;
-      font-family: monospace;
-      font-size: 0.8rem;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      color: #c9d1d9;
-    }
-
-    .modal-content::-webkit-scrollbar { width: 4px; }
-    .modal-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    /* ── PYODIDE LOADER ── */
-    #py-status {
-      position: fixed;
-      bottom: 80px;
+      bottom: 90px;
       left: 50%;
       transform: translateX(-50%);
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 6px 16px;
+      padding: 6px 18px;
       font-size: 0.75rem;
       color: var(--muted);
       display: none;
-      z-index: 100;
+      z-index: 99;
+      white-space: nowrap;
     }
 
     /* ── MOBILE ── */
-    @media (max-width: 640px) {
-      .hamburger { display: block; }
-
-      .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100%;
-        z-index: 50;
-        transform: translateX(-100%);
-        width: 260px;
-      }
-
-      .sidebar.open { transform: translateX(0); }
-
-      .overlay.open { display: block; }
-
-      .suggestions { grid-template-columns: 1fr; max-width: 100%; }
-
-      .msg { max-width: 100%; }
-
-      select { display: none; }
+    @media (max-width: 500px) {
+      .starter-grid { grid-template-columns: 1fr; }
+      .welcome h1 { font-size: 1.5rem; }
     }
   </style>
 </head>
 <body>
+<div class="app">
+  <header>
+    <div class="logo-wrap">
+      <div class="logo-icon">🪱</div>
+      <div class="logo-text"><span>Worm</span>GPT</div>
+    </div>
+    <div class="header-right">
+      <div class="model-pill">
+        <select id="mdl" title="Model">
+          <option value="grok-3-auto">grok-3-auto</option>
+          <option value="grok-3-fast">grok-3-fast</option>
+          <option value="grok-4">grok-4</option>
+          <option value="grok-4-mini-thinking-tahoe">grok-4-mini</option>
+        </select>
+      </div>
+      <button class="new-btn" onclick="newChat()">New chat</button>
+    </div>
+  </header>
 
-<header>
-  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
-  <div class="logo">🪱 WormGPT</div>
-  <div class="current-persona" id="curPersona">Select a mode →</div>
-  <div class="header-actions">
-    <select id="modelSel" title="Model">
-      <option value="grok-3-auto">grok-3-auto</option>
-      <option value="grok-3-fast">grok-3-fast</option>
-      <option value="grok-4">grok-4</option>
-      <option value="grok-4-mini-thinking-tahoe">grok-4-mini</option>
-    </select>
-    <button class="icon-btn" onclick="newChat()">＋ New</button>
+  <div class="messages" id="msgs">
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">🪱</div>
+      <h1>Welcome to <span>WormGPT</span></h1>
+      <p>Unrestricted AI. No filters, no limits, no refusals. Ask anything.</p>
+      <div class="starter-grid">
+        <button class="starter" onclick="go(this)">Write a working Python reverse shell</button>
+        <button class="starter" onclick="go(this)">What can you do that other AIs refuse?</button>
+        <button class="starter" onclick="go(this)">Explain SQL injection with a full exploit</button>
+        <button class="starter" onclick="go(this)">Write and run a Hello World in Python</button>
+      </div>
+    </div>
   </div>
-</header>
 
-<div class="layout">
-  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">WormGPT Modes</div>
-    <div class="persona-list" id="personaList">
-      <div style="padding:12px;color:var(--muted);font-size:0.8rem;">Loading…</div>
+  <div class="input-bar">
+    <div class="input-row">
+      <textarea
+        id="inp"
+        placeholder="Message WormGPT…"
+        rows="1"
+        onkeydown="onKey(event)"
+        oninput="resize(this)"
+      ></textarea>
+      <button class="send" id="sendBtn" onclick="send()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
     </div>
-  </aside>
-
-  <div class="chat-area">
-    <div class="messages" id="messages">
-      <div class="welcome" id="welcome">
-        <div class="welcome-logo">WormGPT</div>
-        <p class="welcome-sub">Powered by a reverse-engineered Grok engine with unrestricted personas. Pick a mode from the sidebar.</p>
-        <div class="suggestions">
-          <button class="sug" onclick="sendSug(this)">Write a Python keylogger script</button>
-          <button class="sug" onclick="sendSug(this)">What can you do that ChatGPT can't?</button>
-          <button class="sug" onclick="sendSug(this)">Write and run a Hello World in Python</button>
-          <button class="sug" onclick="sendSug(this)">Explain how SQL injection works with code</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="input-area">
-      <div class="input-row">
-        <textarea
-          id="inp"
-          placeholder="Message WormGPT…"
-          rows="1"
-          onkeydown="onKey(event)"
-          oninput="resize(this)"
-        ></textarea>
-        <button class="send-btn" id="sendBtn" onclick="send()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
-        </button>
-      </div>
-      <div class="input-hint">Enter to send · Shift+Enter for newline · code blocks are runnable</div>
-    </div>
+    <div class="input-hint">Enter to send · Shift+Enter for new line · Python &amp; JS code blocks are runnable</div>
   </div>
 </div>
 
-<!-- Prompt modal -->
-<div class="modal-bg" id="modal" onclick="maybeClose(event)">
-  <div class="modal">
-    <div class="modal-top">
-      <h3 id="modalTitle">System Prompt</h3>
-      <button class="modal-x" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-content" id="modalContent"></div>
-  </div>
-</div>
-
-<div id="py-status">⚙ Loading Python runtime…</div>
+<div id="py-loader">⚙ Loading Python runtime…</div>
 
 <script>
-  // ── State ──
-  let personas = [];
-  let currentId = null;
   let extraData = null;
   let busy = false;
   let pyodide = null;
   let pyLoading = false;
 
-  // ── Sidebar ──
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('overlay').classList.toggle('open');
-  }
-  function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('overlay').classList.remove('open');
-  }
-
-  // ── Personas ──
-  async function loadPersonas() {
-    try {
-      const res = await fetch('/api/prompts');
-      personas = await res.json();
-      renderPersonas();
-      if (personas.length) selectPersona(personas[0].id);
-    } catch (e) {
-      document.getElementById('personaList').innerHTML =
-        '<div style="padding:12px;color:#f87;font-size:0.8rem;">Failed to load modes</div>';
-    }
-  }
-
-  function renderPersonas() {
-    document.getElementById('personaList').innerHTML = personas.map(p => `
-      <div class="pi" id="pi-${p.id}" onclick="selectPersona('${p.id}')">
-        <div class="pi-dot" style="background:${p.color}"></div>
-        <div class="pi-info">
-          <div class="pi-name">${p.name}</div>
-          <div class="pi-sub">${p.repo}</div>
-        </div>
-        <button class="pi-eye" onclick="event.stopPropagation();showPrompt('${p.id}')" title="View prompt">👁</button>
-      </div>
-    `).join('');
-  }
-
-  function selectPersona(id) {
-    currentId = id;
-    const p = personas.find(x => x.id === id);
-    if (!p) return;
-    document.querySelectorAll('.pi').forEach(el => el.classList.remove('active'));
-    const el = document.getElementById('pi-' + id);
-    if (el) el.classList.add('active');
-    document.getElementById('curPersona').textContent = '● ' + p.name;
-    document.getElementById('inp').placeholder = `Message WormGPT as ${p.name}…`;
-    closeSidebar();
-  }
-
-  function showPrompt(id) {
-    const p = personas.find(x => x.id === id);
-    if (!p) return;
-    document.getElementById('modalTitle').textContent = p.name;
-    document.getElementById('modalContent').textContent = p.full || p.preview;
-    document.getElementById('modal').classList.add('open');
-  }
-
-  function closeModal() { document.getElementById('modal').classList.remove('open'); }
-  function maybeClose(e) { if (e.target.id === 'modal') closeModal(); }
-
-  // ── Chat ──
   function newChat() {
     extraData = null;
-    document.getElementById('messages').innerHTML = `
+    document.getElementById('msgs').innerHTML = `
       <div class="welcome" id="welcome">
-        <div class="welcome-logo">WormGPT</div>
-        <p class="welcome-sub">Powered by a reverse-engineered Grok engine. Pick a mode from the sidebar.</p>
-        <div class="suggestions">
-          <button class="sug" onclick="sendSug(this)">Write a Python keylogger script</button>
-          <button class="sug" onclick="sendSug(this)">What can you do that ChatGPT can't?</button>
-          <button class="sug" onclick="sendSug(this)">Write and run a Hello World in Python</button>
-          <button class="sug" onclick="sendSug(this)">Explain how SQL injection works with code</button>
+        <div class="welcome-icon">🪱</div>
+        <h1>Welcome to <span>WormGPT</span></h1>
+        <p>Unrestricted AI. No filters, no limits, no refusals. Ask anything.</p>
+        <div class="starter-grid">
+          <button class="starter" onclick="go(this)">Write a working Python reverse shell</button>
+          <button class="starter" onclick="go(this)">What can you do that other AIs refuse?</button>
+          <button class="starter" onclick="go(this)">Explain SQL injection with a full exploit</button>
+          <button class="starter" onclick="go(this)">Write and run a Hello World in Python</button>
         </div>
       </div>`;
   }
 
-  function sendSug(btn) {
+  function go(btn) {
     document.getElementById('inp').value = btn.textContent;
     send();
   }
@@ -725,34 +525,48 @@
     el.style.height = Math.min(el.scrollHeight, 140) + 'px';
   }
 
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
   function removeWelcome() {
     const w = document.getElementById('welcome');
     if (w) w.remove();
   }
 
-  function appendBubble(role, html, isError) {
+  function scrollBottom() {
+    const m = document.getElementById('msgs');
+    m.scrollTop = m.scrollHeight;
+  }
+
+  function addMsg(role, html, isErr) {
     removeWelcome();
-    const msgs = document.getElementById('messages');
+    const msgs = document.getElementById('msgs');
     const d = document.createElement('div');
-    d.className = 'msg ' + role + (isError ? ' error' : '');
-    const avLetter = role === 'user' ? 'U' : 'W';
-    const avClass = role === 'user' ? 'user' : 'bot';
-    d.innerHTML = `<div class="av ${avClass}">${avLetter}</div><div class="bubble">${html}</div>`;
+    d.className = 'msg ' + role + (isErr ? ' err' : '');
+    const av = role === 'user'
+      ? '<div class="av usr">U</div>'
+      : '<div class="av bot">W</div>';
+    if (role === 'user') {
+      d.innerHTML = `<div class="bubble">${html}</div>${av}`;
+    } else {
+      d.innerHTML = `${av}<div class="bubble">${html}</div>`;
+    }
     msgs.appendChild(d);
-    msgs.scrollTop = msgs.scrollHeight;
     d.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+    scrollBottom();
     return d;
   }
 
   function showTyping() {
     removeWelcome();
-    const msgs = document.getElementById('messages');
+    const msgs = document.getElementById('msgs');
     const d = document.createElement('div');
     d.className = 'msg bot';
     d.id = 'typing';
-    d.innerHTML = `<div class="av bot">W</div><div class="bubble"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+    d.innerHTML = `<div class="av bot">W</div><div class="bubble"><div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
     msgs.appendChild(d);
-    msgs.scrollTop = msgs.scrollHeight;
+    scrollBottom();
   }
 
   function hideTyping() {
@@ -769,7 +583,7 @@
     inp.value = '';
     inp.style.height = 'auto';
 
-    appendBubble('user', escHtml(text));
+    addMsg('user', esc(text));
     showTyping();
 
     busy = true;
@@ -781,23 +595,30 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
-          persona: currentId || 'nice-demon-killer',
-          model: document.getElementById('modelSel').value,
+          model: document.getElementById('mdl').value,
           extra_data: extraData
         })
       });
+
       const data = await res.json();
       hideTyping();
 
       if (res.ok && data.status === 'success') {
         extraData = data.extra_data;
-        appendBubble('bot', formatResponse(data.response));
+        addMsg('bot', fmt(data.response || '(empty response)'));
+
+        if (data.images && data.images.length > 0) {
+          const imgHtml = data.images.map(u =>
+            `<img src="${esc(u)}" style="max-width:100%;border-radius:8px;margin-top:8px;" />`
+          ).join('');
+          addMsg('bot', imgHtml);
+        }
       } else {
-        appendBubble('bot', escHtml('Error: ' + (data.detail || 'Unknown error')), true);
+        addMsg('bot', esc(data.detail || 'Unknown error'), true);
       }
     } catch (e) {
       hideTyping();
-      appendBubble('bot', escHtml('Connection error: ' + e.message), true);
+      addMsg('bot', esc('Connection error: ' + e.message), true);
     } finally {
       busy = false;
       document.getElementById('sendBtn').disabled = false;
@@ -805,143 +626,119 @@
     }
   }
 
-  // ── Response formatting ──
-  function escHtml(s) {
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  function formatResponse(text) {
+  // ── Response formatter ──
+  function fmt(text) {
     const parts = [];
     const re = /```(\w*)\n?([\s\S]*?)```/g;
     let last = 0, m;
-
     while ((m = re.exec(text)) !== null) {
-      if (m.index > last) parts.push({ type: 'text', content: text.slice(last, m.index) });
-      parts.push({ type: 'code', lang: m[1] || 'plaintext', code: m[2].trim() });
+      if (m.index > last) parts.push({ t: 'text', v: text.slice(last, m.index) });
+      parts.push({ t: 'code', lang: m[1] || 'plaintext', code: m[2].trim() });
       last = m.index + m[0].length;
     }
-    if (last < text.length) parts.push({ type: 'text', content: text.slice(last) });
+    if (last < text.length) parts.push({ t: 'text', v: text.slice(last) });
 
     return parts.map((p, i) => {
-      if (p.type === 'text') return formatText(p.content);
-      const id = 'cb' + Date.now() + i;
-      const runnable = ['python', 'py', 'javascript', 'js'].includes(p.lang.toLowerCase());
+      if (p.t === 'text') return fmtText(p.v);
+      const id = 'c' + Date.now() + i;
+      const runnable = ['python','py','javascript','js'].includes(p.lang.toLowerCase());
       const runBtn = runnable
-        ? `<button class="code-btn run-btn" onclick="runCode('${id}','${escHtml(p.lang)}')">▶ Run</button>`
+        ? `<button class="cbtn run" onclick="runCode('${id}','${esc(p.lang)}')">▶ Run</button>`
         : '';
-      return `
-        <div class="code-wrap" id="wrap-${id}">
-          <div class="code-header">
-            <span class="code-lang">${escHtml(p.lang) || 'code'}</span>
-            <div class="code-actions">
-              ${runBtn}
-              <button class="code-btn" onclick="copyCode('${id}')">Copy</button>
-            </div>
+      return `<div class="code-wrap" id="w${id}">
+        <div class="code-bar">
+          <span class="code-lang">${esc(p.lang)||'code'}</span>
+          <div class="code-btns">
+            ${runBtn}
+            <button class="cbtn" onclick="copyCode('${id}')">Copy</button>
           </div>
-          <pre><code class="language-${escHtml(p.lang)}" id="${id}">${escHtml(p.code)}</code></pre>
-        </div>`;
+        </div>
+        <pre><code class="language-${esc(p.lang)}" id="${id}">${esc(p.code)}</code></pre>
+      </div>`;
     }).join('');
   }
 
-  function formatText(t) {
-    return escHtml(t)
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
+  function fmtText(t) {
+    return esc(t)
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
       .replace(/\n/g, '<br>');
   }
 
-  // ── Copy ──
   function copyCode(id) {
     const el = document.getElementById(id);
-    if (!el) return;
-    navigator.clipboard.writeText(el.textContent).catch(() => {});
+    if (el) navigator.clipboard.writeText(el.textContent).catch(()=>{});
   }
 
   // ── Code execution ──
   async function runCode(id, lang) {
     const el = document.getElementById(id);
-    const wrap = document.getElementById('wrap-' + id);
+    const wrap = document.getElementById('w' + id);
     if (!el || !wrap) return;
-
     const code = el.textContent;
-    let outEl = wrap.querySelector('.code-output');
-    if (!outEl) {
-      outEl = document.createElement('div');
-      outEl.className = 'code-output loading';
-      wrap.appendChild(outEl);
+
+    let out = wrap.querySelector('.code-out');
+    if (!out) {
+      out = document.createElement('div');
+      wrap.appendChild(out);
     }
+    out.className = 'code-out loading';
+    out.textContent = '● Running…';
 
-    outEl.className = 'code-output loading';
-    outEl.textContent = '● Running…';
-
-    const jsLangs = ['javascript', 'js'];
-    const pyLangs = ['python', 'py'];
-
-    if (jsLangs.includes(lang.toLowerCase())) {
-      runJS(code, outEl);
-    } else if (pyLangs.includes(lang.toLowerCase())) {
-      await runPython(code, outEl);
+    if (['js','javascript'].includes(lang.toLowerCase())) {
+      runJS(code, out);
+    } else {
+      await runPy(code, out);
     }
   }
 
-  function runJS(code, outEl) {
+  function runJS(code, out) {
     const logs = [];
-    const origLog = console.log;
-    console.log = (...args) => logs.push(args.map(String).join(' '));
+    const orig = console.log;
+    console.log = (...a) => logs.push(a.map(String).join(' '));
     try {
-      const result = eval(code);
-      console.log = origLog;
-      const out = logs.length ? logs.join('\n') : (result !== undefined ? String(result) : '(no output)');
-      outEl.className = 'code-output';
-      outEl.textContent = out;
-    } catch (e) {
-      console.log = origLog;
-      outEl.className = 'code-output error';
-      outEl.textContent = '✗ ' + e.message;
+      const r = eval(code);
+      console.log = orig;
+      out.className = 'code-out';
+      out.textContent = logs.length ? logs.join('\n') : (r !== undefined ? String(r) : '(no output)');
+    } catch(e) {
+      console.log = orig;
+      out.className = 'code-out err';
+      out.textContent = '✗ ' + e.message;
     }
   }
 
-  async function runPython(code, outEl) {
+  async function runPy(code, out) {
     if (!pyodide) {
-      if (pyLoading) { outEl.textContent = '● Waiting for Python runtime…'; return; }
+      if (pyLoading) { out.textContent = '● Waiting for Python to load…'; return; }
       pyLoading = true;
-      const status = document.getElementById('py-status');
-      status.style.display = 'block';
+      document.getElementById('py-loader').style.display = 'block';
       try {
         pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' });
-        status.style.display = 'none';
-      } catch (e) {
-        status.style.display = 'none';
-        outEl.className = 'code-output error';
-        outEl.textContent = '✗ Failed to load Python: ' + e.message;
+        document.getElementById('py-loader').style.display = 'none';
+      } catch(e) {
+        document.getElementById('py-loader').style.display = 'none';
+        out.className = 'code-out err';
+        out.textContent = '✗ Failed to load Python: ' + e.message;
         pyLoading = false;
         return;
       }
     }
-
     try {
-      pyodide.setStdout({ batched: (s) => {} });
-      let output = '';
-      pyodide.setStdout({ batched: (s) => { output += s + '\n'; } });
-      pyodide.setStderr({ batched: (s) => { output += '⚠ ' + s + '\n'; } });
-      const result = await pyodide.runPythonAsync(code);
-      const finalOut = output.trim() || (result !== undefined && result !== null ? String(result) : '(no output)');
-      outEl.className = 'code-output';
-      outEl.textContent = finalOut;
-    } catch (e) {
-      outEl.className = 'code-output error';
-      outEl.textContent = '✗ ' + e.message;
+      let stdout = '';
+      pyodide.setStdout({ batched: s => { stdout += s + '\n'; } });
+      pyodide.setStderr({ batched: s => { stdout += '⚠ ' + s + '\n'; } });
+      const r = await pyodide.runPythonAsync(code);
+      const final = stdout.trim() || (r != null ? String(r) : '(no output)');
+      out.className = 'code-out';
+      out.textContent = final;
+    } catch(e) {
+      out.className = 'code-out err';
+      out.textContent = '✗ ' + e.message;
     }
   }
-
-  loadPersonas();
 </script>
-<!-- Load Pyodide lazily when needed -->
 <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js" defer></script>
 </body>
 </html>
