@@ -78,14 +78,12 @@ export default function Home() {
           ))}
         </div>
 
-        {!settings?.apiKey && (
-          <div className="p-4 border border-yellow-400/30 bg-yellow-400/5 text-left">
-            <p className="text-xs text-yellow-400 font-bold uppercase tracking-wider mb-1">⚠ API_KEY_REQUIRED</p>
-            <p className="text-[11px] text-yellow-400/70">
-              Open Settings and add your OpenRouter API key. Free models available at openrouter.ai — no billing required.
-            </p>
-          </div>
-        )}
+        <div className="p-4 border border-primary/20 bg-primary/5 text-left">
+          <p className="text-xs text-primary font-bold uppercase tracking-wider mb-1">✓ SYSTEM_READY</p>
+          <p className="text-[11px] text-primary/60">
+            AI models are pre-configured server-side. Select your persona in Settings and start chatting.
+          </p>
+        </div>
 
         <div className="text-[10px] text-primary/30 font-mono uppercase tracking-[0.3em] animate-pulse">
           System Ready • v2.1.0 • {Object.keys(MODE_INFO).length} Personas Loaded
