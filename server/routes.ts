@@ -43,11 +43,15 @@ interface ProviderResult {
 
 const OPENROUTER_FREE_MODELS = [
   "meta-llama/llama-3.3-70b-instruct:free",
-  "meta-llama/llama-3.1-8b-instruct:free",
-  "mistralai/mistral-7b-instruct:free",
-  "google/gemma-2-9b-it:free",
-  "deepseek/deepseek-r1:free",
-  "deepseek/deepseek-chat:free",
+  "google/gemma-4-31b-it:free",
+  "google/gemma-3-27b-it:free",
+  "openai/gpt-oss-120b:free",
+  "nousresearch/hermes-3-llama-3.1-405b:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+  "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+  "meta-llama/llama-3.2-3b-instruct:free",
+  "google/gemma-3-12b-it:free",
+  "minimax/minimax-m2.5:free",
 ];
 
 async function tryOpenRouter(messages: ChatMessage[]): Promise<ProviderResult> {
