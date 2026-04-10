@@ -155,10 +155,47 @@ async function tryOpenAI(messages: ChatMessage[]): Promise<ProviderResult> {
   return { content, provider: "openai/gpt-4o-mini" };
 }
 
+async function tryPollinations(messages: ChatMessage[]): Promise<ProviderResult> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 45000);
+
+  try {
+    const res = await fetch("https://text.pollinations.ai/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages,
+        model: "openai",
+        seed: Math.floor(Math.random() * 9999),
+        private: true,
+      }),
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Pollinations error ${res.status}: ${errText.slice(0, 100)}`);
+    }
+
+    const content = await res.text();
+    if (!content?.trim()) throw new Error("Empty response from Pollinations");
+    return { content: content.trim(), provider: "pollinations/openai" };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function callAI(messages: ChatMessage[]): Promise<ProviderResult> {
   const errors: string[] = [];
 
-  // Priority: OpenRouter (free) → DeepSeek → OpenAI
+  // Priority: Pollinations (always free, no key) → OpenRouter → DeepSeek → OpenAI
+  try {
+    return await tryPollinations(messages);
+  } catch (err: any) {
+    errors.push(`Pollinations: ${err.message}`);
+    console.warn("[AI] Pollinations failed, trying next provider...");
+  }
+
   if (process.env.OPENROUTER_API_KEY) {
     try {
       return await tryOpenRouter(messages);
@@ -183,10 +220,6 @@ async function callAI(messages: ChatMessage[]): Promise<ProviderResult> {
     } catch (err: any) {
       errors.push(`OpenAI: ${err.message}`);
     }
-  }
-
-  if (errors.length === 0) {
-    throw new Error("No API keys configured. Set OPENROUTER_API_KEY, DEEPSEEK_API_KEY, or OPENAI_API_KEY.");
   }
 
   throw new Error(`All AI providers failed: ${errors.join(" | ")}`);
