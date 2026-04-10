@@ -52,7 +52,7 @@ export default function Chat() {
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-black relative">
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scroll-smooth">
+      <div className="flex-1 overflow-y-auto py-4 px-0 space-y-1 scroll-smooth">
         {loadingMessages ? (
           <div className="flex h-full items-center justify-center">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -75,12 +75,13 @@ export default function Chat() {
             ))}
             
             {isSending && (
-              <div className="flex gap-4 p-4 md:p-6 mb-2 rounded-lg border border-primary/10 mr-12 bg-black opacity-70">
-                <div className="w-8 h-8 border border-primary bg-primary text-black flex items-center justify-center">
-                   <Loader2 className="w-4 h-4 animate-spin" />
-                </div>
-                <div className="flex items-center">
-                   <span className="font-mono text-primary animate-pulse tracking-widest text-xs">PROCESSING_DATA_STREAM...</span>
+              <div className="flex w-full px-2 sm:px-4 justify-start mb-2">
+                <div className="bg-zinc-900 border border-white/10 rounded-2xl rounded-bl-sm px-4 py-3 max-w-[85%] sm:max-w-[75%]">
+                  <div className="text-[10px] font-bold uppercase tracking-widest mb-2 opacity-60 text-primary/80">HACX_GPT</div>
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                    <span className="font-mono text-primary/60 animate-pulse tracking-widest text-xs">PROCESSING...</span>
+                  </div>
                 </div>
               </div>
             )}

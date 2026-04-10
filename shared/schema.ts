@@ -26,7 +26,7 @@ export const settings = pgTable("settings", {
   userId: text("user_id").notNull().unique(),
   apiKey: text("api_key"),
   provider: text("provider").default("openrouter"),
-  model: text("model").default("kwaipilot/kat-coder-pro:free"),
+  model: text("model").default("deepseek/deepseek-r1:free"),
   theme: text("theme").default("hacker"),
   mode: text("mode").default("hacxgpt"),
 });

@@ -279,7 +279,25 @@ export async function registerRoutes(
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`API Error: ${response.status} ${errorText}`);
+        let friendlyMessage = `API Error ${response.status}`;
+        try {
+          const errorJson = JSON.parse(errorText);
+          const msg = errorJson?.error?.message || errorJson?.message;
+          if (msg) {
+            if (msg.toLowerCase().includes("deprecat")) {
+              friendlyMessage = `Model deprecated. Please open Settings and choose a different model (e.g. DeepSeek R1 Free).`;
+            } else if (msg.toLowerCase().includes("quota") || msg.toLowerCase().includes("rate limit")) {
+              friendlyMessage = `Rate limit reached. Try again in a moment or switch models in Settings.`;
+            } else if (msg.toLowerCase().includes("invalid") && msg.toLowerCase().includes("key")) {
+              friendlyMessage = `Invalid API key. Please update your key in Settings.`;
+            } else {
+              friendlyMessage = msg.length > 120 ? msg.slice(0, 120) + "..." : msg;
+            }
+          }
+        } catch {
+          // keep generic message
+        }
+        throw new Error(friendlyMessage);
       }
 
       const data = await response.json();

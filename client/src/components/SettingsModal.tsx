@@ -48,9 +48,10 @@ const AI_MODES = [
 
 const PROVIDER_MODELS: Record<string, Array<{ id: string; label: string }>> = {
   openrouter: [
-    { id: "kwaipilot/kat-coder-pro:free", label: "KAT Coder Pro (Free)" },
     { id: "deepseek/deepseek-r1:free", label: "DeepSeek R1 (Free)" },
+    { id: "deepseek/deepseek-chat:free", label: "DeepSeek Chat (Free)" },
     { id: "meta-llama/llama-4-maverick:free", label: "Llama 4 Maverick (Free)" },
+    { id: "meta-llama/llama-3.3-70b-instruct:free", label: "Llama 3.3 70B (Free)" },
     { id: "google/gemini-2.0-flash-exp:free", label: "Gemini 2.0 Flash (Free)" },
     { id: "mistralai/mistral-7b-instruct:free", label: "Mistral 7B (Free)" },
     { id: "x-ai/grok-3-mini-beta", label: "xAI Grok 3 Mini" },
@@ -71,7 +72,7 @@ export function SettingsModal() {
     defaultValues: {
       apiKey: "",
       provider: "openrouter",
-      model: "kwaipilot/kat-coder-pro:free",
+      model: "deepseek/deepseek-r1:free",
       mode: "hacxgpt",
     }
   });
@@ -84,7 +85,7 @@ export function SettingsModal() {
       reset({
         apiKey: settings.apiKey || "",
         provider: settings.provider || "openrouter",
-        model: settings.model || "kwaipilot/kat-coder-pro:free",
+        model: settings.model || "deepseek/deepseek-r1:free",
         mode: settings.mode || "hacxgpt",
       });
     }
